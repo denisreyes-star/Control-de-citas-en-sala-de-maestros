@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 """
 Django settings for core project.
 
@@ -58,6 +59,72 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
+=======
+import os
+from datetime import timedelta
+from pathlib import Path
+BASE_DIR = Path(__file__).resolve().parent.parent
+# --- Seguridad / entorno (todo viene de variables de entorno) ---
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "insegura-solo-desarrollo")
+DEBUG = os.environ.get("DJANGO_DEBUG", "0") == "1"
+ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost").split(",")
+INSTALLED_APPS = [
+"django.contrib.admin",
+"django.contrib.auth",
+"django.contrib.contenttypes",
+"django.contrib.sessions",
+"django.contrib.messages",
+"django.contrib.staticfiles",
+# Terceros
+"corsheaders",
+"rest_framework",
+"rest_framework_simplejwt",
+]
+MIDDLEWARE = [
+"corsheaders.middleware.CorsMiddleware", # ← DEBE ir primero
+"django.middleware.security.SecurityMiddleware",
+"django.contrib.sessions.middleware.SessionMiddleware",
+"django.middleware.common.CommonMiddleware",
+"django.middleware.csrf.CsrfViewMiddleware",
+"django.contrib.auth.middleware.AuthenticationMiddleware",
+"django.contrib.messages.middleware.MessageMiddleware",
+"django.middleware.clickjacking.XFrameOptionsMiddleware",
+]
+# --- Base de datos: PostgreSQL (driver psycopg 3) ---
+DATABASES = {
+"default": {
+"ENGINE": "django.db.backends.postgresql",
+"NAME": os.environ["POSTGRES_DB"],
+"USER": os.environ["POSTGRES_USER"],
+"PASSWORD": os.environ["POSTGRES_PASSWORD"],
+"HOST": os.environ.get("POSTGRES_HOST", "db"),
+"PORT": os.environ.get("POSTGRES_PORT", "5432"),
+}
+}
+# --- CORS: solo los orígenes del frontend declarados en .env ---
+CORS_ALLOWED_ORIGINS = [
+o.strip() for o in os.environ.get("CORS_ALLOWED_ORIGINS", "").split(",") if o.strip()
+]
+# --- DRF + JWT ---
+REST_FRAMEWORK = {
+"DEFAULT_AUTHENTICATION_CLASSES": (
+"rest_framework_simplejwt.authentication.JWTAuthentication",
+),
+}
+SIMPLE_JWT = {
+"ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
+"REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+}
+# --- Plantillas (Requerido por admin) ---
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [], 
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+>>>>>>> fix/backend-healthcheck-drf
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
@@ -66,6 +133,7 @@ TEMPLATES = [
     },
 ]
 
+<<<<<<< HEAD
 WSGI_APPLICATION = 'core.wsgi.application'
 
 
@@ -120,3 +188,11 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+=======
+# --- Rutas principales ---
+# Ajusta 'core' si el nombre de tu carpeta principal donde está urls.py es diferente
+ROOT_URLCONF = 'core.urls' 
+
+# --- Archivos estáticos (Requerido para que el admin tenga estilos) ---
+STATIC_URL = '/static/'
+>>>>>>> fix/backend-healthcheck-drf

@@ -1,4 +1,5 @@
 services:
+<<<<<<< HEAD
   db:
     image: postgres:15
     volumes:
@@ -48,3 +49,64 @@ services:
 
 volumes:
   postgres_data:
+=======
+  # ───────────── Base de datos ─────────────
+  db:
+    image: postgres:15
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # persistencia
+    ports:
+      - "${DB_PORT_HOST:-5432}:5432" # opcional: acceso desde un cliente SQL
+    healthcheck:
+      # $$ evita que Compose interpole la variable en el host; la resuelve el contenedor
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  # ───────────── Backend Django/DRF ─────────────
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy # espera a pg_isready OK
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app # código en caliente
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health/')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  # ───────────── Frontend (ejemplo Vite; adaptar puerto/env según framework) ─────────────
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "5173:5173"
+    environment:
+      - CHOKIDAR_USEPOLLING=true # refuerzo de polling (chokidar)
+      - WATCHPACK_POLLING=true # necesario en Next.js (webpack)
+      - VITE_API_URL=http://localhost:8000
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules # volumen anónimo: protege dependencias Linux
+
+volumes:
+  postgres_data:
+>>>>>>> fix/backend-healthcheck-drf

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 """
 URL configuration for core project.
 
@@ -20,3 +21,13 @@ from django.urls import path
 urlpatterns = [
     path('admin/', admin.site.urls),
 ]
+=======
+from django.contrib import admin
+from django.urls import path
+from .views import health_check 
+
+urlpatterns = [
+    path('admin/', admin.site.urls), # Tus otras rutas...
+    path('api/v1/health/', health_check, name='health_check'),
+]
+>>>>>>> fix/backend-healthcheck-drf

@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 SH
+=======
+>>>>>>> fix/backend-healthcheck-drf
 #!/bin/sh
 # Espera a PostgreSQL, migra y cede el control al comando del contenedor.
 set -e
@@ -7,11 +10,19 @@ DB_PORT="${POSTGRES_PORT:-5432}"
 echo "⏳ Esperando a PostgreSQL en ${DB_HOST}:${DB_PORT}..."
 # nc -z: solo comprueba que el puerto acepta conexiones (sin enviar datos)
 while ! nc -z "$DB_HOST" "$DB_PORT"; do
+<<<<<<< HEAD
   sleep 1
+=======
+sleep 1
+>>>>>>> fix/backend-healthcheck-drf
 done
 echo " PostgreSQL disponible."
 echo " Aplicando migraciones..."
 python manage.py migrate --noinput
 echo " Iniciando: $*"
 # exec: el proceso final pasa a ser PID 1 y recibe señales (docker stop)
+<<<<<<< HEAD
 exec "$@"
+=======
+exec "$@"
+>>>>>>> fix/backend-healthcheck-drf
