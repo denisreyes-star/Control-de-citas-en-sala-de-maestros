@@ -1,0 +1,17 @@
+# Normaliza TODO texto a LF en el repositorio y en el árbol de trabajo.
+* text=auto eol=lf
+
+# Scripts de shell: LF obligatorio (un CRLF rompe el shebang en Linux).
+*.sh text eol=lf
+Dockerfile* text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.py text eol=lf
+
+# Binarios: nunca tocar.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff2 binary

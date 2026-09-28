@@ -1,4 +1,26 @@
+# Secretos y entorno local
 .env
+*.local
+
+# Python / Django
 __pycache__/
 *.py[cod]
+.venv/
+*.sqlite3
+staticfiles/
+
+# React / Vite
 node_modules/
+dist/
+dist-ssr/
+.vite/
+coverage/
+
+# Editores y SO
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# docs
+docs/rules/
