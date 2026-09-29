@@ -19,3 +19,6 @@ cd Control-de-citas-en-sala-de-maestros
 Construye y levanta los contenedores en segundo plano:
 docker compose up -d --build
 El backend estará disponible en http://localhost:8000 y el frontend en http://localhost:3000.
+
+<img width="511" height="217" alt="image" src="https://github.com/user-attachments/assets/ee83513a-16be-48d3-a561-bcb30f823a6f" />
+
