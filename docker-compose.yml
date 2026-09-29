@@ -18,19 +18,16 @@ services:
   api:
     build: ./backend
     command: python manage.py runserver 0.0.0.0:8000
-    volumes:
-      - ./backend:/app
+    # ...
     environment:
       DJANGO_SECRET_KEY: clave_secreta_local
       DJANGO_DEBUG: "True"
-      DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1
+      DJANGO_ALLOWED_HOSTS: "*"  # <-- CAMBIA ESTA LÍNEA
       POSTGRES_DB: sistema_db
       POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin_password
-      POSTGRES_HOST: db
-      POSTGRES_PORT: 5432
+      # ...
     ports:
-      - "8000:8000"
+      - "8080:8000"
     depends_on:
       db:
         condition: service_healthy
@@ -42,7 +39,7 @@ services:
       - ./frontend:/app
       - /app/node_modules
     environment:
-      VITE_API_URL: http://localhost:8000
+      VITE_API_URL: http://localhost:8080
     ports:
       - "3000:3000"
 
