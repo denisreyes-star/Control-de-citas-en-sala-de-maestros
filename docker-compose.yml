@@ -1,56 +1,4 @@
 services:
-<<<<<<< HEAD
-  db:
-    image: postgres:15
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin_password
-      POSTGRES_DB: sistema_db
-    ports:
-      - "5433:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U admin -d sistema_db"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
-  api:
-    build: ./backend
-    command: python manage.py runserver 0.0.0.0:8000
-    volumes:
-      - ./backend:/app
-    environment:
-      DJANGO_SECRET_KEY: clave_secreta_local
-      DJANGO_DEBUG: "True"
-      DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1
-      POSTGRES_DB: sistema_db
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin_password
-      POSTGRES_HOST: db
-      POSTGRES_PORT: 5432
-    ports:
-      - "8000:8000"
-    depends_on:
-      db:
-        condition: service_healthy
-
-  frontend:
-    build: ./frontend
-    command: npm run dev -- --host 0.0.0.0
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    environment:
-      VITE_API_URL: http://localhost:8000
-    ports:
-      - "3000:3000"
-
-volumes:
-  postgres_data:
-=======
-  # ───────────── Base de datos ─────────────
   db:
     image: postgres:15
     restart: unless-stopped
@@ -60,29 +8,31 @@ volumes:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
-      - postgres_data:/var/lib/postgresql/data # persistencia
+      - postgres_data:/var/lib/postgresql/data
     ports:
-      - "${DB_PORT_HOST:-5432}:5432" # opcional: acceso desde un cliente SQL
+      - "${POSTGRES_PORT:-5432}:5432"
     healthcheck:
-      # $$ evita que Compose interpole la variable en el host; la resuelve el contenedor
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 10
       start_period: 10s
 
-  # ───────────── Backend Django/DRF ─────────────
   backend:
     build: ./backend
     restart: unless-stopped
     env_file: .env
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      CORS_ALLOWED_ORIGINS: http://localhost:${FRONTEND_PORT:-3000}
     depends_on:
       db:
-        condition: service_healthy # espera a pg_isready OK
+        condition: service_healthy
     ports:
-      - "8000:8000"
+      - "${API_PORT:-8000}:8000"
     volumes:
-      - ./backend:/app # código en caliente
+      - ./backend:/app
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health/')"]
       interval: 10s
@@ -90,23 +40,20 @@ volumes:
       retries: 10
       start_period: 30s
 
-  # ───────────── Frontend (ejemplo Vite; adaptar puerto/env según framework) ─────────────
   frontend:
     build: ./frontend
     restart: unless-stopped
     depends_on:
       backend:
         condition: service_healthy
-    ports:
-      - "5173:5173"
     environment:
-      - CHOKIDAR_USEPOLLING=true # refuerzo de polling (chokidar)
-      - WATCHPACK_POLLING=true # necesario en Next.js (webpack)
-      - VITE_API_URL=http://localhost:8000
+      CHOKIDAR_USEPOLLING: "true"
+      VITE_API_URL: http://localhost:${API_PORT:-8000}
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
     volumes:
       - ./frontend:/app
-      - /app/node_modules # volumen anónimo: protege dependencias Linux
+      - /app/node_modules
 
 volumes:
   postgres_data:
->>>>>>> fix/backend-healthcheck-drf
