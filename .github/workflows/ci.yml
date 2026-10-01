@@ -1,0 +1,21 @@
+YAML
+name: CI
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+jobs:
+  docker-validate:
+    name: Validar y compilar con Docker Compose
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+# .env está en .gitignore: el runner solo tiene la plantilla
+      - name: Preparar variables de entorno
+        run: cp .env.example .env
+      - name: Validar sintaxis de docker compose
+        run: docker compose config --quiet
+      - name: Compilar todas las imágenes
+        run: docker compose build
